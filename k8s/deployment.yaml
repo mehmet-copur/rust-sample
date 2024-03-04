@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rust-sample-rust-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rust-sample
+  template:
+    metadata:
+      labels:
+        app: rust-sample
+    spec:
+      containers:
+      - name: rust-sample
+        image: docker.io/mcopur/rust-sample-rust-app:latest
+        ports:
+        - containerPort: 8080

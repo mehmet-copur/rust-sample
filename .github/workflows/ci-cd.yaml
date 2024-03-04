@@ -1,0 +1,44 @@
+name: Continuous Integration and Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Rust
+      uses: mehmet-copur/rust-pipeline/actions/rust/setup@main
+    - name: Build
+      uses: mehmet-copur/rust-pipeline/actions/rust/build@main
+    - name: Test
+      uses: mehmet-copur/rust-pipeline/actions/rust/test@main
+
+  docker-build-and-push:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build and Push Docker image
+      uses: mehmet-copur/rust-pipeline/actions/docker/build-and-push@main
+      with:
+        dockerfile: './Dockerfile'
+        image-name: 'rust-sample-rust-app'
+        image-tag: ${{ github.sha }}
+        registry-url: 'docker.io'
+        registry-username: ${{ secrets.DOCKER_USERNAME }}
+        registry-password: ${{ secrets.DOCKER_PASSWORD }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker-build-and-push
+    steps:
+    - uses: actions/checkout@v2
+    - name: Deploy to Kubernetes
+      uses: mehmet-copur/rust-pipeline/actions/kubernetes/deploy@main
+      with:
+        kubeconfig-data: ${{ secrets.KUBECONFIG_DATA }}
+        manifest-path: './k8s/'
