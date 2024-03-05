@@ -6,7 +6,6 @@ RUN USER=root cargo new --bin rust-sample
 WORKDIR /rust-sample
 
 # Copy our manifests
-COPY ./Cargo.lock ./Cargo.lock
 COPY ./Cargo.toml ./Cargo.toml
 
 # Build only the dependencies to cache them
