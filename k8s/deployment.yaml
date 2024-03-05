@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rust-sample-rust-app
+  name: rust-sample
 spec:
   replicas: 1
   selector:
@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: rust-sample
-        image: docker.io/mcopur/rust-sample-rust-app:latest
+        image: minikube-local-registry:5000/rust-sample:latest
         ports:
         - containerPort: 8080
