@@ -1,1 +1,2 @@
 # rust-sample
+Test
