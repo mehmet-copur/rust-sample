@@ -21,7 +21,7 @@ jobs:
       uses: mehmet-copur/rust-pipeline/actions/rust/build@main
 
     - name: Test the Rust project
-      uses: mehmet-copur/rust-pipeline/actions/rust/test@main
+      uses: mehmet-copur/rust-pipeline/actions/rust/test/unit@main
 
   docker-build-and-push:
     runs-on: ubuntu-latest
