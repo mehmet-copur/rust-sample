@@ -70,7 +70,7 @@ jobs:
         token: ${{ secrets.PAT }}
 
     - name: Test E2E for the Rust project
-      uses: mehmet-copur/rust-pipeline/actions/rust/test/integration@main   
+      uses: mehmet-copur/rust-pipeline/actions/rust/test/e2e@main   
 
   docker-build-and-push:
     name: Docker Build and Push
