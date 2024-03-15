@@ -74,7 +74,7 @@ jobs:
 
   docker-build-and-push:
     name: Docker Build and Push
-    needs: unit-test-project, integration-test-project, e2e-test-project
+    needs: [unit-test-project, integration-test-project, e2e-test-project]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
