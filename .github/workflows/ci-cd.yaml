@@ -6,8 +6,11 @@ on:
       - main
 
 jobs:
-  build-and-test:
+  setup-environment:
+    name: Setup Rust Environment
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -17,15 +20,36 @@ jobs:
     - name: Setup Rust environment
       uses: mehmet-copur/rust-pipeline/actions/rust/setup@main
 
+  build-project:
+    name: Build Project
+    needs: setup-environment
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.PAT }}
+
     - name: Build the Rust project
       uses: mehmet-copur/rust-pipeline/actions/rust/build@main
+
+  test-project:
+    name: Test Project
+    needs: build-project
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.PAT }}
 
     - name: Test the Rust project
       uses: mehmet-copur/rust-pipeline/actions/rust/test/unit@main
 
   docker-build-and-push:
+    name: Docker Build and Push
+    needs: test-project
     runs-on: ubuntu-latest
-    needs: build-and-test
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
@@ -43,8 +67,9 @@ jobs:
         registry-password: ${{ secrets.DOCKER_PASSWORD }}
 
   deploy:
-    runs-on: ubuntu-latest
+    name: Deploy to Kubernetes
     needs: docker-build-and-push
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
