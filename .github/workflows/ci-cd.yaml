@@ -86,7 +86,7 @@ jobs:
         with:
           dockerfile: "./Dockerfile"
           context: "."
-          image-name: "rust-sample-rust-app"
+          image-name: "kpn"
           image-tag: ${{ github.sha }}
           registry-url: ${{ secrets.DOCKER_REGISTRY_URL }}
           registry-username: ${{ secrets.DOCKER_USERNAME }}
