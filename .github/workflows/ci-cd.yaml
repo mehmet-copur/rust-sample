@@ -59,7 +59,7 @@ jobs:
 
   integration-test-project:
     name: Running Integration Tests
-    needs: build-project
+    needs: code-security-scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -72,7 +72,7 @@ jobs:
 
   e2e-test-project:
     name: Running E2E Tests
-    needs: build-project
+    needs: code-security-scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
