@@ -33,9 +33,20 @@ jobs:
       - name: Build the Rust project
         uses: mehmet-copur/rust-pipeline/actions/rust/build@main
 
+  code-security-scan:
+    name: Code Security Scan
+    needs: build-project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Code Security Scan
+        uses: mehmet-copur/rust-pipeline/actions/security/code-scan@main
+
   unit-test-project:
     name: Running Unit Tests
-    needs: build-project
+    needs: code-security-scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
