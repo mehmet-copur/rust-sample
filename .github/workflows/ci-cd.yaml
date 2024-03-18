@@ -77,21 +77,21 @@ jobs:
     needs: [unit-test-project, integration-test-project, e2e-test-project]
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
+      - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
 
-    - name: Build and Push Docker image
-      uses: mehmet-copur/rust-pipeline/actions/docker/build-and-push@main
-      with:
-        dockerfile: "./Dockerfile"
-        image-name: "rust-sample-rust-app"
-        image-tag: ${{ github.sha }}
-        registry-url: "docker.io"
-        registry-username: ${{ secrets.DOCKER_USERNAME }}
-        registry-password: ${{ secrets.DOCKER_PASSWORD }}
-
+      - name: Build and Push Docker image
+        uses: mehmet-copur/rust-pipeline/actions/docker/build-and-push@main
+        with:
+          dockerfile: "./Dockerfile"
+          context: "."
+          image-name: "rust-sample-rust-app"
+          image-tag: ${{ github.sha }}
+          registry-url: ${{ secrets.DOCKER_REGISTRY_URL }}
+          registry-username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+          
   deploy:
     name: Deploy to Kubernetes
     needs: docker-build-and-push
