@@ -12,65 +12,65 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
 
-    - name: Setup Rust environment
-      uses: mehmet-copur/rust-pipeline/actions/rust/setup@main
+      - name: Setup Rust environment
+        uses: mehmet-copur/rust-pipeline/actions/rust/setup@main
 
   build-project:
     name: Build Project
     needs: setup-environment
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
 
-    - name: Build the Rust project
-      uses: mehmet-copur/rust-pipeline/actions/rust/build@main
+      - name: Build the Rust project
+        uses: mehmet-copur/rust-pipeline/actions/rust/build@main
 
   unit-test-project:
     name: Running Unit Tests
     needs: build-project
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
 
-    - name: Test units for the Rust project
-      uses: mehmet-copur/rust-pipeline/actions/rust/test/unit@main
+      - name: Test units for the Rust project
+        uses: mehmet-copur/rust-pipeline/actions/rust/test/unit@main
 
   integration-test-project:
     name: Running Integration Tests
     needs: build-project
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
 
-    - name: Test integrations for the Rust project
-      uses: mehmet-copur/rust-pipeline/actions/rust/test/integration@main      
+      - name: Test integrations for the Rust project
+        uses: mehmet-copur/rust-pipeline/actions/rust/test/integration@main
 
   e2e-test-project:
     name: Running E2E Tests
     needs: build-project
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
 
-    - name: Test E2E for the Rust project
-      uses: mehmet-copur/rust-pipeline/actions/rust/test/e2e@main   
+      - name: Test E2E for the Rust project
+        uses: mehmet-copur/rust-pipeline/actions/rust/test/e2e@main
 
   docker-build-and-push:
     name: Docker Build and Push
@@ -89,21 +89,21 @@ jobs:
           image-name: "rust-sample-rust-app"
           image-tag: ${{ github.sha }}
           registry-url: ${{ secrets.DOCKER_REGISTRY_URL }}
-          registry-username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
-          registry-password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
-          
+          registry-username: ${{ secrets.DOCKER_USERNAME }}
+          registry-password: ${{ secrets.DOCKER_PASSWORD }}
+
   deploy:
     name: Deploy to Kubernetes
     needs: docker-build-and-push
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        token: ${{ secrets.PAT }}
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT }}
 
-    - name: Deploy to Kubernetes
-      uses: mehmet-copur/rust-pipeline/.github/actions/kubernetes/deploy@main
-      with:
-        kubeconfig-data: ${{ secrets.KUBECONFIG_DATA }}
-        manifest-path: "./k8s/"
+      - name: Deploy to Kubernetes
+        uses: mehmet-copur/rust-pipeline/.github/actions/kubernetes/deploy@main
+        with:
+          kubeconfig-data: ${{ secrets.KUBECONFIG_DATA }}
+          manifest-path: "./k8s/"
