@@ -90,7 +90,7 @@ jobs:
           image-tag: ${{ github.sha }}
           registry-url: ${{ secrets.DOCKER_REGISTRY_URL }}
           registry-username: ${{ secrets.DOCKER_USERNAME }}
-          registry-password: ${{ secrets.DOCKER_PASSWORD }}
+          registry-password: ${{ secrets.DOCKER_ACCESS_TOKEN }}
 
   deploy:
     name: Deploy to Kubernetes
