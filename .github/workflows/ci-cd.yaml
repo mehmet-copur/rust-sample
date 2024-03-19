@@ -44,11 +44,45 @@ jobs:
       - name: Code Security Scan
         uses: mehmet-copur/rust-pipeline/actions/security/code-scan@main
         with:
-          allow-failure: 'true'
+          allow-failure: "true"
+
+  dependency-vulnerability-scan:
+    name: Dependency Vulnerability Scan
+    needs: build-project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Dependency Vulnerability Scan
+        uses: mehmet-copur/rust-pipeline/actions/security/dependency-scan@main
+        with:
+          allow-failure: "true"
+
+  sonarqube-scan:
+    name: SonarQube Scan
+    needs: build-project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: SonarQube Scan
+        uses: mehmet-copur/rust-pipeline/actions/security/sonarqube-scan@main
+        with:
+          allow-failure: "true"
+          sonar-host: ${{ secrets.SONAR_HOST_URL }}
+          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          project-key: "mehmet-copur"
+          project-name: "Sample Rust Project"
+          project-version: "1.0.0"
+          sources: "src"
+          tests: "tests"
+          exclusions: "path/to/exclusions/**/*"
 
   unit-test-project:
     name: Running Unit Tests
-    needs: code-security-scan
+    needs: [code-security-scan, dependency-vulnerability-scan, sonarqube-scan]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -61,7 +95,7 @@ jobs:
 
   integration-test-project:
     name: Running Integration Tests
-    needs: code-security-scan
+    needs: [code-security-scan, dependency-vulnerability-scan, sonarqube-scan]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -74,7 +108,7 @@ jobs:
 
   e2e-test-project:
     name: Running E2E Tests
-    needs: code-security-scan
+    needs: [code-security-scan, dependency-vulnerability-scan, sonarqube-scan]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
