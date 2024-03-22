@@ -1,6 +1,6 @@
 fn main() {
     let unused_variable = 123;
-
+    //test
     let truth = true;
     if truth == true {
         println!("It's true!");
