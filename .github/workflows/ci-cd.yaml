@@ -73,7 +73,8 @@ jobs:
           allow-failure: "true"
           sonar-host: ${{ secrets.SONAR_HOST_URL }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
-          project-key: "mehmet-copur"
+          organization: "mehmet-copur"
+          project-key: "rust-sample"
           project-name: "rust-sample"
           project-version: "1.0.0"
           sources: "src"
