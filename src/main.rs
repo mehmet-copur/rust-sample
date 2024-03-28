@@ -7,7 +7,7 @@ fn main() {
     }
 
     // This is not formatted according to Rust's standard style
-    let badly_formatted=vec![1,2,3];
+    let badly_formatted = vec![1, 2, 3];
 
     println!("Hello, world!");
 }
