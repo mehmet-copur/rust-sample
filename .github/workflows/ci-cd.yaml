@@ -4,73 +4,42 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   setup-environment:
     name: Setup Rust Environment
     runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.PAT }}
+          fetch-depth: 0
 
       - name: Setup Rust environment
         uses: mehmet-copur/rust-pipeline/actions/rust/setup@main
 
-  build-project:
-    name: Build Project
+  build-and-scan:
+    name: Build and Scan Project
     needs: setup-environment
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT }}
 
       - name: Build the Rust project
         uses: mehmet-copur/rust-pipeline/actions/rust/build@main
 
-  code-security-scan:
-    name: Code Security Scan
-    needs: build-project
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-
       - name: Code Security Scan
         uses: mehmet-copur/rust-pipeline/actions/security/code-scan@main
-        with:
-          allow-failure: "true"
-
-  dependency-vulnerability-scan:
-    name: Dependency Vulnerability Scan
-    needs: build-project
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
 
       - name: Dependency Vulnerability Scan
         uses: mehmet-copur/rust-pipeline/actions/security/dependency-scan@main
-        with:
-          allow-failure: "true"
-
-  sonarqube-scan:
-    name: SonarQube Scan
-    needs: build-project
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
 
       - name: SonarQube Scan
         uses: mehmet-copur/rust-pipeline/actions/security/sonarqube-scan@main
         with:
-          allow-failure: "true"
           sonar-host: ${{ secrets.SONAR_HOST_URL }}
           sonar-token: ${{ secrets.SONAR_TOKEN }}
           organization: "mehmet-copur"
@@ -81,53 +50,26 @@ jobs:
           tests: "tests"
           exclusions: "path/to/exclusions/**/*"
 
-  unit-test-project:
-    name: Running Unit Tests
-    needs: [code-security-scan, dependency-vulnerability-scan, sonarqube-scan]
+  test-project:
+    name: Running Tests
+    needs: build-and-scan
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        test-type: ['unit', 'integration', 'e2e']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT }}
 
-      - name: Test units for the Rust project
-        uses: mehmet-copur/rust-pipeline/actions/rust/test/unit@main
-
-  integration-test-project:
-    name: Running Integration Tests
-    needs: [code-security-scan, dependency-vulnerability-scan, sonarqube-scan]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT }}
-
-      - name: Test integrations for the Rust project
-        uses: mehmet-copur/rust-pipeline/actions/rust/test/integration@main
-
-  e2e-test-project:
-    name: Running E2E Tests
-    needs: [code-security-scan, dependency-vulnerability-scan, sonarqube-scan]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT }}
-
-      - name: Test E2E for the Rust project
-        uses: mehmet-copur/rust-pipeline/actions/rust/test/e2e@main
+      - name: Test Project
+        uses: mehmet-copur/rust-pipeline/actions/rust/test/${{ matrix.test-type }}@main
 
   docker-build-and-push:
     name: Docker Build and Push
-    needs: [unit-test-project, integration-test-project, e2e-test-project]
+    needs: test-project
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT }}
 
       - name: Build and Push Docker image
         uses: mehmet-copur/rust-pipeline/actions/docker/build-and-push@main
@@ -147,11 +89,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT }}
 
       - name: Deploy to Kubernetes
-        uses: mehmet-copur/rust-pipeline/.github/actions/kubernetes/deploy@main
+        uses: mehmet-copur/rust-pipeline/actions/kubernetes/deploy@main
         with:
           kubeconfig-data: ${{ secrets.KUBECONFIG_DATA }}
           manifest-path: "./k8s/"
