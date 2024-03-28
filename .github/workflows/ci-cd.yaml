@@ -50,19 +50,39 @@ jobs:
           tests: "tests"
           exclusions: "path/to/exclusions/**/*"
 
-  test-project:
-    name: Running Tests
+  test-unit:
+    name: Running Unit Tests
     needs: build-and-scan
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test-type: ['unit', 'integration', 'e2e']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Test Project
-        uses: mehmet-copur/rust-pipeline/actions/rust/test/${{ matrix.test-type }}@main
+      - name: Unit Tests
+        uses: mehmet-copur/rust-pipeline/actions/rust/test/unit@main
+
+  test-integration:
+    name: Running Integration Tests
+    needs: build-and-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Integration Tests
+        uses: mehmet-copur/rust-pipeline/actions/rust/test/integration@main
+
+  test-e2e:
+    name: Running E2E Tests
+    needs: build-and-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: E2E Tests
+        uses: mehmet-copur/rust-pipeline/actions/rust/test/e2e@main
+
 
   docker-build-and-push:
     name: Docker Build and Push
